@@ -5,7 +5,7 @@ from .. import functions as fn
 import numpy as np
 
 
-__all__ = ['BarGraphItem']
+__all__ = ['BarGraphItem', 'MonochromeBarGraphItem']
 
 class BarGraphItem(GraphicsObject):
     def __init__(self, **opts):
@@ -57,7 +57,6 @@ class BarGraphItem(GraphicsObject):
     def setOpts(self, **opts):
         self.opts.update(opts)
         self.picture = None
-        self._shape = None
         self.update()
         self.informViewBoundsChanged()
         
@@ -237,3 +236,108 @@ class BarGraphItem(GraphicsObject):
                 mask = np.isfinite(d)
                 d = d[mask]
                 return np.percentile(d, [50 * (1 - frac), 50 * (1 + frac)])
+
+
+
+class MonochromeBarGraphItem(BarGraphItem):
+    """
+    ====================  ===============================================
+    **Signals:**
+    sigClicked(self)      Emitted when the curve is clicked
+    ====================  ===============================================
+    """
+
+    sigClicked = QtCore.Signal(object)
+
+
+    def __init__(self, **opts):
+        super(MonochromeBarGraphItem, self).__init__(**opts)
+        self.setClickable(self.opts.get('clickable'))
+
+
+    def setClickable(self, s, width=None):
+        """Sets whether the item responds to mouse clicks.
+
+        The *width* argument specifies the width in pixels orthogonal to the
+        curve that will respond to a mouse click.
+        """
+        self.clickable = s
+        if width is not None:
+            self.opts['mouseWidth'] = width
+            self._mouseShape = None
+
+
+    def mouseShape(self):
+        """
+        Return a QPainterPath representing the clickable shape of the curve
+
+        """
+        width = self.opts.get('mouseWidth', 0)
+        if width:
+            if self._mouseShape is None:
+                view = self.getViewBox()
+                if view is None:
+                    return QtGui.QPainterPath()
+                stroker = QtGui.QPainterPathStroker()
+                path = self.getPath()
+                path = self.mapToItem(view, path)
+                stroker.setWidth(width)
+                mousePath = stroker.createStroke(path)
+                self._mouseShape = self.mapFromItem(view, mousePath)
+            return self._mouseShape
+        return self.getPath()
+
+
+    def mouseClickEvent(self, ev):
+        if not self.clickable or ev.button() != QtCore.Qt.LeftButton:
+            return
+        if self.mouseShape().contains(ev.pos()):
+            ev.accept()
+            self.sigClicked.emit(self)
+
+
+    def generatePath(self):
+
+        path = QtGui.QPainterPath()
+        for i in range(len(self.x0)):
+            if np.isscalar(self.y0):
+                y = self.y0
+            else:
+                y = self.y0[i]
+            if np.isscalar(self.width):
+                w = self.width
+            else:
+                w = self.width[i]
+
+            path.addRect(self.x0[i], y, w, self.height[i])
+        return path
+
+
+    def getPath(self):
+        try:
+            self.path
+        except AttributeError:
+            self.path = self.generatePath()
+            self._shape = self.path
+        return self.path
+
+
+    def drawPicture(self):
+        self.picture = QtGui.QPicture()
+        p = QtGui.QPainter(self.picture)
+
+        pen = self.opts['pen']
+        if pen is None:
+            pen = getConfigOption('foreground')
+
+        brush = self.opts['brush']
+        if brush is None:
+            brush = (128, 128, 128)
+
+        p.setPen(fn.mkPen(pen))
+        p.setBrush(fn.mkBrush(brush))
+
+        path = self.getPath()
+        p.drawPath(path)
+        p.end()
+        self.prepareGeometryChange()
