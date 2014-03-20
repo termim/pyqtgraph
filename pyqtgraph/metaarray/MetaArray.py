@@ -18,21 +18,23 @@ from ..python2_3 import basestring
 
 ## By default, the library will use HDF5 when writing files.
 ## This can be overridden by setting USE_HDF5 = False
-USE_HDF5 = True
-try:
-    import h5py
+#USE_HDF5 = True
+#try:
+    #import h5py
+#
+    ## Older h5py versions tucked Group and Dataset deeper inside the library:
+    #if not hasattr(h5py, 'Group'):
+        #import h5py.highlevel
+        #h5py.Group = h5py.highlevel.Group
+        #h5py.Dataset = h5py.highlevel.Dataset
+        #
+    #HAVE_HDF5 = True
+#except:
+    #USE_HDF5 = False
+    #HAVE_HDF5 = False
 
-    # Older h5py versions tucked Group and Dataset deeper inside the library:
-    if not hasattr(h5py, 'Group'):
-        import h5py.highlevel
-        h5py.Group = h5py.highlevel.Group
-        h5py.Dataset = h5py.highlevel.Dataset
-        
-    HAVE_HDF5 = True
-except:
-    USE_HDF5 = False
-    HAVE_HDF5 = False
-
+USE_HDF5 = False
+HAVE_HDF5 = False
 
 def axis(name=None, cols=None, values=None, units=None):
     """Convenience function for generating axis descriptions when defining MetaArrays"""
