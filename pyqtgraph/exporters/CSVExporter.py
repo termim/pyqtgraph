@@ -15,7 +15,7 @@ class CSVExporter(Exporter):
         Exporter.__init__(self, item)
         self.params = Parameter(name='params', type='group', children=[
             {'name': 'separator', 'type': 'list', 'value': 'comma', 'values': ['comma', 'tab']},
-            {'name': 'precision', 'type': 'int', 'value': 10, 'limits': [0, None]},
+            {'name': 'precision', 'type': 'int', 'value': 22, 'limits': [0, None]},
             {'name': 'columnMode', 'type': 'list', 'values': ['(x,y) per plot', '(x,y,y,y) for all plots']}
         ])
         
