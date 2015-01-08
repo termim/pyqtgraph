@@ -107,3 +107,7 @@ rtr.cvs
 # ctags
 .tags*
 
+Ui_*.py
+.eric?project
+.issues
+.ropeproject
