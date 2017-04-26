@@ -415,7 +415,7 @@ class ViewBox(GraphicsWidget):
             scene.addItem(item)  ## Necessary due to Qt bug: https://bugreports.qt-project.org/browse/QTBUG-18616
         item.setParentItem(self.childGroup)
 
-        if not ignoreBounds:
+        if not ignoreBounds and item not in self.addedItems:
             self.addedItems.append(item)
         self.updateAutoRange()
 
