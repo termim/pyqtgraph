@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import codecs
+
 from ..Qt import QtGui, QtCore
 from .Exporter import Exporter
 from ..parametertree import Parameter
@@ -31,6 +33,7 @@ class CSVExporter(Exporter):
             self.fileSaveDialog(filter=["*.csv", "*.tsv"])
             return
 
+        fd = codecs.open(fileName, 'w', 'utf-8')
         data = []
         header = []
 
