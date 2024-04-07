@@ -1,3 +1,5 @@
+from collections.abc import Sequence
+
 import numpy as np
 
 from .. import functions as fn
@@ -70,6 +72,65 @@ class BarGraphItem(GraphicsObject):
         self.prepareGeometryChange()
         self.update()
         self.informViewBoundsChanged()
+
+    def setPen(self, *args, **kwargs):
+        """
+        Set the pen(s) used to draw the outline around each spot.
+        If a list or array is provided, then the pen for each spot will be set separately.
+        Otherwise, the arguments are passed to pg.mkPen and used as the default pen for
+        all spots which do not have a pen explicitly set.
+        """
+        update = kwargs.pop('update', True)
+        if (    len(args) == 1
+            and isinstance(args[0], (Sequence, np.ndarray))
+            and not isinstance(args[0], str)
+            ):
+            if len(args[0]) != len(self._rectarray):
+                raise Exception(f"Number of pens does not match number of bars ({len(args[0])} != {len(self._rectarray)})")
+            self._pens = list(map(lambda x: x if isinstance(x, QtGui.QPen)
+                                              else fn.mkPen(x, **kwargs), args[0]))
+            self._sharedPen = None
+
+        else:
+            pen = fn.mkPen(*args, **kwargs)
+            if pen.style() != QtCore.Qt.PenStyle.NoPen:
+                idx = pen.isCosmetic()
+                self._penWidth[idx] = max(self._penWidth[idx], pen.widthF())
+            self._sharedPen = pen
+            self._pens = None
+
+        if update:
+            self.prepareGeometryChange()
+            self.update()
+            self.informViewBoundsChanged()
+
+    def setBrush(self, *args, **kwargs):
+        """
+        Set the brush(es) used to fill the interior of each spot.
+        If a list or array is provided, then the brush for each spot will be set separately.
+        Otherwise, the arguments are passed to pg.mkBrush and used as the default brush for
+        all spots which do not have a brush explicitly set.
+        """
+        update = kwargs.pop('update', True)
+        if (    len(args) == 1
+            and isinstance(args[0], (Sequence, np.ndarray))
+            and not isinstance(args[0], str)
+            ):
+            if len(args[0]) != len(self._rectarray):
+                raise Exception(f"Number of brushes does not match number of bars ({len(args[0])} != {len(self._rectarray)})")
+            self._brushes = list(map(lambda x: x if isinstance(x, QtGui.QBrush)
+                                              else fn.mkBrush(x, **kwargs), args[0]))
+            self._sharedBrush = None
+
+        else:
+            self._sharedBrush = fn.mkBrush(*args, **kwargs)
+            self._brushes = None
+
+        if update:
+            self.prepareGeometryChange()
+            self.update()
+            self.informViewBoundsChanged()
+
 
     def _updatePenWidth(self, pen):
         no_pen = pen is None or pen.style() == QtCore.Qt.PenStyle.NoPen
