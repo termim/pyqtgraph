@@ -13,25 +13,25 @@ class BarGraphItem(GraphicsObject):
         """
         Valid keyword options are:
         x, x0, x1, y, y0, y1, width, height, pen, brush
-        
+
         x specifies the x-position of the center of the bar.
         x0, x1 specify left and right edges of the bar, respectively.
         width specifies distance from x0 to x1.
         You may specify any combination:
-            
+
             x, width
             x0, width
             x1, width
-            x0, x1
-            
-        Likewise y, y0, y1, and height. 
+            x0, x1 %Y
+
+        Likewise y, y0, y1, and height.
         If only height is specified, then y0 will be set to 0
-        
+
         Example uses:
-        
+
             BarGraphItem(x=range(5), height=[1,5,2,4,3], width=0.5)
-            
-        
+
+
         """
         GraphicsObject.__init__(self)
         self.opts = dict(
@@ -60,7 +60,7 @@ class BarGraphItem(GraphicsObject):
         self._shape = None
         self.picture = None
         self.setOpts(**opts)
-        
+
     def setOpts(self, **opts):
         self.opts.update(opts)
         self.picture = None
@@ -137,7 +137,7 @@ class BarGraphItem(GraphicsObject):
         x0 = asarray(self.opts.get('x0'))
         x1 = asarray(self.opts.get('x1'))
         width = asarray(self.opts.get('width'))
-        
+
         if x0 is None:
             if width is None:
                 raise Exception('must specify either x0 or width')
@@ -151,7 +151,7 @@ class BarGraphItem(GraphicsObject):
             if x1 is None:
                 raise Exception('must specify either x1 or width')
             width = x1 - x0
-            
+
         y = asarray(self.opts.get('y'))
         y0 = asarray(self.opts.get('y0'))
         y1 = asarray(self.opts.get('y1'))
@@ -244,7 +244,7 @@ class BarGraphItem(GraphicsObject):
             if self.picture is None:
                 self.drawPicture()
             self.picture.play(p)
-            
+
     def shape(self):
         if self._shape is None:
             shape = QtGui.QPainterPath()
