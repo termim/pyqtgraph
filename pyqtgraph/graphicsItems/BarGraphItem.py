@@ -100,6 +100,7 @@ class BarGraphItem(GraphicsObject):
             self._pens = None
 
         if update:
+            self.picture = None
             self.prepareGeometryChange()
             self.update()
             self.informViewBoundsChanged()
@@ -127,6 +128,7 @@ class BarGraphItem(GraphicsObject):
             self._brushes = None
 
         if update:
+            self.picture = None
             self.prepareGeometryChange()
             self.update()
             self.informViewBoundsChanged()
@@ -296,7 +298,7 @@ class BarGraphItem(GraphicsObject):
         painter.end()
 
     def paint(self, p, *args):
-        if self._singleColor:
+        if self._sharedPen and self._sharedBrush:
             p.setPen(self._sharedPen)
             p.setBrush(self._sharedBrush)
             drawargs = self._rectarray.drawargs()
